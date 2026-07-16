@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth.password_validation import validate_password
 
+from .models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -19,6 +20,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             "last_name",
             "password",
         )
+
     def create(self, validated_data):
         password = validated_data.pop("password")
 
@@ -30,8 +32,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
     
     
-
-
 class LoginSerializer(TokenObtainPairSerializer):
 
     @classmethod
@@ -43,7 +43,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         token["last_name"] = user.last_name
 
         return token
-    
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -53,3 +53,29 @@ class UserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
         )
+
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+
+        fields = (
+            "first_name",
+            "last_name",
+            "bio",
+            "github",
+            "linkedin",
+            "website",
+            "profile_picture"
+        )
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(
+        write_only=True,
+        style={"input_type": "password"},
+    )
+
+    new_password = serializers.CharField(
+        write_only=True,
+        style={"input_type": "password"},
+        validators=[validate_password],
+    )
