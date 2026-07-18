@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 
+import re
 from .models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -79,3 +80,34 @@ class ChangePasswordSerializer(serializers.Serializer):
         style={"input_type": "password"},
         validators=[validate_password],
     )
+
+    def validate_new_password(self, value):
+        validate_password(value)
+
+        if not re.search(r"[A-Z]", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one uppercase letter."
+            )
+
+        if not re.search(r"[a-z]", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one lowercase letter."
+            )
+
+        if not re.search(r"\d", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one digit."
+            )
+
+        if not re.search(r"[^A-Za-z0-9]", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one special character."
+            )
+
+        return value
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(
+        write_only = True,
+    )
+    

@@ -4,13 +4,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
     UserSerializer,
     UpdateProfileSerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer,
+    LogoutSerializer
 )
 
 # Create your views here.
@@ -107,5 +109,28 @@ class ChangePasswordView(APIView):
             {
                 "message": "Password changed successfully."
             },
+            status=status.HTTP_200_OK,
+        )
+    
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self,request):
+        serializer = LogoutSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            refresh_token = serializer.validated_data["refresh"]
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+        except Exception:
+            return Response(
+                {"error":"Invalid or expired refresh token."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(
+            {"message":"Logged out successfully. "},
             status=status.HTTP_200_OK,
         )
