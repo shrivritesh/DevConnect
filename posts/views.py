@@ -1,4 +1,4 @@
-from rest_framework.generics import CreateAPIView , ListAPIView
+from rest_framework.generics import CreateAPIView , ListAPIView , RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Post
@@ -21,7 +21,7 @@ class FeedView(ListAPIView):
 
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
         return (
             Post.objects.select_related("user").order_by("-created_at")
@@ -31,3 +31,14 @@ class FeedView(ListAPIView):
     # def get_queryset(self):
     #     return Post.objects.all().order_by("-created_at")
     
+class RetrievePostView(RetrieveAPIView):
+    """
+    API view for retrieving a single post.
+    """
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            Post.objects.select_related("user")
+        )
