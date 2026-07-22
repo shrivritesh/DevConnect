@@ -1,12 +1,14 @@
 from rest_framework import serializers
-
 from .models import Post
+from accounts.serializers import UserMiniSerializer
 
 class PostSerializer(serializers.ModelSerializer):
     """
     Serializer for creating, retrieving,
     updating, and validating posts.
     """
+
+    user=UserMiniSerializer(read_only = True)
     class Meta:
         """
         Configuration options for the Post serializer.
@@ -45,20 +47,11 @@ class PostSerializer(serializers.ModelSerializer):
         if not caption and not image and not file:
             raise serializers.ValidationError("A post must contain at least one of: caption, image, or file. ")
         return attrs
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+    
         # if (
         #     not attrs.get("caption")
         #     and not attrs.get("image")
         #     and not attrs.get("file")
         # ):
         #     
+

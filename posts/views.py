@@ -18,9 +18,16 @@ class CreatePostView(CreateAPIView):
     
 class FeedView(ListAPIView):
     """API view for listing all posts."""
-    # queryset = Post.objects.all()
 
-    def get_queryset(self):
-        return Post.objects.all().order_by("-created_at")
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return (
+            Post.objects.select_related("user").order_by("-created_at")
+        )
+    # queryset = Post.objects.all()
+
+    # def get_queryset(self):
+    #     return Post.objects.all().order_by("-created_at")
+    

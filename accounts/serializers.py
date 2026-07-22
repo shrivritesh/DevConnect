@@ -55,6 +55,21 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
         )
 
+    
+class UserMiniSerializer(serializers.ModelSerializer):
+    """
+    Minimal user information for nested serializers
+    such as posts, comments and likes.
+    """
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "profile_picture",
+        )
+
 class UpdateProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
