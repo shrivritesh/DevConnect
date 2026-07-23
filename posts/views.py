@@ -1,8 +1,9 @@
-from rest_framework.generics import CreateAPIView , ListAPIView , RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import CreateAPIView , ListAPIView , RetrieveAPIView ,UpdateAPIView , DestroyAPIView
+from rest_framework.permissions import IsAuthenticated 
 
 from .models import Post
 from .serializers import PostSerializer
+from .permission import IsOwner
 
 
 class CreatePostView(CreateAPIView):
@@ -42,3 +43,25 @@ class RetrievePostView(RetrieveAPIView):
         return (
             Post.objects.select_related("user")
         )
+    
+
+class UpdatePostView(UpdateAPIView):
+    """
+    API view for updating post
+    """
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+
+    def get_queryset(self):
+        return (Post.objects.select_related("user"))
+    
+
+class DeletePostView(DestroyAPIView):
+    """
+    API for deleting Post
+    """
+    
+    permission_classes = [IsAuthenticated,IsOwner]
+
+    def get_queryset(self):
+        return (Post.objects.select_related("user"))
