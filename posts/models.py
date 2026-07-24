@@ -48,7 +48,7 @@ class Post(models.Model):
             return f"{self.user.email} - {self.caption[:30]}"
         return f"{self.user.email} - Post #{self.id}"
 
-class Like(models.Model):
+class PostLike(models.Model):
     """
     Represents a like on Post 
     """

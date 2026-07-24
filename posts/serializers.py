@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Post
 from accounts.serializers import UserMiniSerializer
+from .models import PostLike
+
 
 class PostSerializer(serializers.ModelSerializer):
     """
@@ -9,7 +11,11 @@ class PostSerializer(serializers.ModelSerializer):
     """
 
     user=UserMiniSerializer(read_only = True)
+
+    likes_count=serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
     class Meta:
+
         """
         Configuration options for the Post serializer.
         """
@@ -22,6 +28,8 @@ class PostSerializer(serializers.ModelSerializer):
             "file",
             "created_at",
             "updated_at",
+            "likes_count",
+            "is_liked",
         )
 
         """
@@ -55,3 +63,16 @@ class PostSerializer(serializers.ModelSerializer):
         # ):
         #     
 
+    def get_likes_count(self,obj):
+        return obj.likes.count()
+
+    def get_is_liked(self,obj):
+        request = self.context["request"]
+
+        if not request.user.is_authenticated:
+            return False
+
+        return PostLike.objects.filter(
+            user=request.user,
+            post=obj,
+        ).exists()
