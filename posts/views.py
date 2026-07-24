@@ -6,6 +6,7 @@ from rest_framework import status
 from .models import Post , Like
 from .serializers import PostSerializer
 from .permission import IsOwner
+from django.shortcuts import get_object_or_404
 
 
 class CreatePostView(CreateAPIView):
@@ -75,8 +76,7 @@ class LikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self,request,pk):
-        post = Post.objects.get(pk=pk)
-
+        post = get_object_or_404(Post, pk=pk)
         _, created = Like.objects.get_or_create(user=request.user,post=post,)
 
         if created:
@@ -86,5 +86,31 @@ class LikePostView(APIView):
             )
         return Response(
             {"message": "You have already liked this post."},
+            status=status.HTTP_200_OK,
+        )
+
+class UnlikePostView(APIView):
+    """
+    API view for unliking a Post
+    """
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request,pk):
+        post = get_object_or_404(Post,pk=pk)
+
+        like = Like.objects.filter(
+            user=request.user,
+            post = post,
+        ).first()
+
+        if not like:
+            return Response(
+                {"message": "You have not liked this post."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        like.delete()
+
+        return Response(
+            {"message": "Post unliked successfully."},
             status=status.HTTP_200_OK,
         )
